@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuard
+spec:
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - name: kuard
+        image: gcr.io/kuar-demo/kuard-amd64:1
+        env:
+        - name: Demo
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: Demo
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: config-volume
+            mountPath: /app-config
+          - name: config-kv
+            mountPath: /kv
+      volumes:
+      - name: config-volume
+        configMap:
+          name: kuard-file-config
+      - name: config-kv
+        configMap:
+          name: config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  Demo:  "PwC jest Super - test"
+  redis: "redis-master"
+  asb-namespace: "blablabla"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuard-file-config
+data:
+  appsettings.json: |-
+    {
+        "Logging": {
+            "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning - Test"
+            }
+        },
+        "AllowedHosts": "*"
+    }

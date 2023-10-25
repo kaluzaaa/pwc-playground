@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basket-api
+spec:
+  selector:
+    matchLabels:
+      app: basket-api
+  template:
+    metadata:
+      labels:
+        app: basket-api
+    spec:
+      containers:
+      - name: basket-api
+        image: eshop/basket.api
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        envFrom:
+        - configMapRef:
+            name: basket-api-cm
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: basket-api-cm
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: http://0.0.0.0:80
+  ConnectionString: "faktyczny connection string do bazy danych"
+  identityUrl: "http://identity-api"              #Local: You need to open your local dev-machine firewall at range 5100-5110.
+  Identity__Url: "http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105"
+  EventBusConnection: "${ESHOP_AZURE_SERVICE_BUS:-rabbitmq}"
+  EventBusUserName: "${ESHOP_SERVICE_BUS_USERNAME}"
+  EventBusPassword: "${ESHOP_SERVICE_BUS_PASSWORD}"
+  AzureServiceBusEnabled: "False"
+  ApplicationInsights__InstrumentationKey: "${INSTRUMENTATION_KEY}"
+  OrchestratorType: "${ORCHESTRATOR_TYPE}"
+  UseLoadTest: "${USE_LOADTEST:-False}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: basket-api
+spec:
+  selector:
+    app: basket-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP

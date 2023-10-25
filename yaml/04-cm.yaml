@@ -1,0 +1,16 @@
+# kubectl create cm kuard-file-config --from-file=appsettings.json -o yaml --dry-run=client > yaml/04-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuard-file-config
+data:
+  appsettings.json: |-
+    {
+        "Logging": {
+            "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning"
+            }
+        },
+        "AllowedHosts": "*"
+    }
