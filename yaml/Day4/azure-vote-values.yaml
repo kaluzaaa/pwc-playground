@@ -1,0 +1,14 @@
+ingress:
+  enabled: true
+  className: addon-http-application-routing
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+  hosts:
+    - host: voting-app.5bfbc872612a40829ec8.westeurope.aksapp.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

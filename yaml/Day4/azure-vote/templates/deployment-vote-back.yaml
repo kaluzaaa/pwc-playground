@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "azure-vote.fullname" . }}-back
+  labels:
+    {{- include "azure-vote.back.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.voteback.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "azure-vote.back.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "azure-vote.back.labels" . | nindent 8 }}
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: azure-vote-back
+        image: "{{ .Values.voteback.image.repository }}:{{ .Values.voteback.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.voteback.image.pullPolicy }}
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 6379
+          name: redis

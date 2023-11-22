@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "azure-vote.fullname" . }}-back
+  labels:
+    {{- include "azure-vote.back.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 6379
+  selector:
+    {{- include "azure-vote.back.selectorLabels" . | nindent 4 }}
